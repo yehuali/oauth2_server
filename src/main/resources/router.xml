@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<router>
+	<action-package>
+		<package>com.example.oauth2_server.action</package>
+	</action-package>
+	
+	<namespaces>
+		<!--按包分配命名空间，多个匹配项时，采用目录级别最多的-->
+		<namespace name="/nettp/" packages="com.example.oauth2_server.action.*"></namespace>
+	</namespaces>
+	
+</router>
