@@ -4,6 +4,8 @@ import com.example.oauth2_server.handler.core.annotation.Namespace;
 import com.example.oauth2_server.handler.core.config.ActionWrapper;
 import com.example.oauth2_server.handler.core.config.RouterConfig;
 import com.example.oauth2_server.handler.core.exception.DuplicateActionException;
+import com.example.oauth2_server.handler.core.invocation.ActionInvocation;
+import com.example.oauth2_server.handler.core.invocation.ActionProxy;
 import com.example.oauth2_server.handler.core.util.PackageUtil;
 import lombok.extern.slf4j.Slf4j;
 
@@ -82,4 +84,19 @@ public class RouterContext {
 
     }
 
+    public ActionWrapper getActionWrapper(String path){
+        return actions.get(path);
+    }
+
+    public ActionProxy getActionProxy(ActionWrapper actionWrapper) throws Exception{
+        ActionProxy proxy = new ActionProxy();
+        ActionInvocation invocation = new ActionInvocation();
+        invocation.init(proxy);
+
+        proxy.setActionObject(actionWrapper.actionObject);
+        proxy.setMethod(actionWrapper.method);
+        proxy.setMethodName(actionWrapper.method.getName());
+        proxy.setInvocation(invocation);
+        return proxy;
+    }
 }

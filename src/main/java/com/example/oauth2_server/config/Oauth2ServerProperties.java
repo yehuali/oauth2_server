@@ -1,10 +1,12 @@
 package com.example.oauth2_server.config;
 
+import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 /**
  * 服务配置
  */
 @ConfigurationProperties(prefix = "spring.oauth2.server")
+@Data
 public class Oauth2ServerProperties {
     /**
      * SSL端口号, 默认8883端口
@@ -30,44 +32,10 @@ public class Oauth2ServerProperties {
      */
     private boolean soKeepAlive = true;
 
+    //路由配置文件
+    private String configFilePath;
 
-    public int getSslPort() {
-        return sslPort;
-    }
+    //端口
+    private int port = 8888;
 
-    public void setSslPort(int sslPort) {
-        this.sslPort = sslPort;
-    }
-
-    public String getSslPassword() {
-        return sslPassword;
-    }
-
-    public void setSslPassword(String sslPassword) {
-        this.sslPassword = sslPassword;
-    }
-
-    public int getKeepAlive() {
-        return keepAlive;
-    }
-
-    public void setKeepAlive(int keepAlive) {
-        this.keepAlive = keepAlive;
-    }
-
-    public int getSoBacklog() {
-        return soBacklog;
-    }
-
-    public void setSoBacklog(int soBacklog) {
-        this.soBacklog = soBacklog;
-    }
-
-    public boolean isSoKeepAlive() {
-        return soKeepAlive;
-    }
-
-    public void setSoKeepAlive(boolean soKeepAlive) {
-        this.soKeepAlive = soKeepAlive;
-    }
 }

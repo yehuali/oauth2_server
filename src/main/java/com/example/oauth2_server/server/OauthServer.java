@@ -2,7 +2,6 @@ package com.example.oauth2_server.server;
 
 import com.example.oauth2_server.config.Oauth2ServerProperties;
 import com.example.oauth2_server.handler.ActionDispatcher;
-import com.example.oauth2_server.handler.OauthHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -57,9 +56,9 @@ public class OauthServer {
 //        kmf.init(keyStore, serverProperties.getSslPassword().toCharArray());
 //        sslContext = SslContextBuilder.forServer(kmf).build();
         ActionDispatcher dispatcher = new ActionDispatcher();
-        dispatcher.init(null);
+        dispatcher.init(serverProperties.getConfigFilePath());
         oauthServer();
-        LOGGER.info("OauthServer is up and running. Open SSLPort: {}",  serverProperties.getSslPort());
+        LOGGER.info("OauthServer is up and running. Open port: {}",  serverProperties.getPort());
     }
 
 
@@ -99,8 +98,12 @@ public class OauthServer {
                         channelPipeline.addLast("dispatcher",new ActionDispatcher());//请求分发组件
                     }
                 })
-                .option(ChannelOption.SO_BACKLOG, serverProperties.getSoBacklog())
-                .childOption(ChannelOption.SO_KEEPALIVE, serverProperties.isSoKeepAlive());
-        channel = sb.bind(serverProperties.getSslPort()).sync().channel();
+                .option(ChannelOption.SO_BACKLOG, 1024)
+                .childOption(ChannelOption.SO_KEEPALIVE, true)
+                .childOption(ChannelOption.TCP_NODELAY, true);
+        ChannelFuture future = sb.bind(serverProperties.getPort()).sync();
+
+        LOGGER.info("Nettp server listening on port " + serverProperties.getPort());
+        future.channel().closeFuture().sync();
     }
 }
