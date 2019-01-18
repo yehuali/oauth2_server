@@ -132,6 +132,20 @@ public class PackageUtil {
 
     }
 
+    public static void main(String[] args) {
+        String a = "Hello";
+        toLowerCaseFirstOne(a);
+        System.out.println(a);
+    }
+
+    //首字母转小写
+    public static String toLowerCaseFirstOne(String s){
+        if(Character.isLowerCase(s.charAt(0)))
+            return s;
+        else
+            return (new StringBuilder()).append(Character.toLowerCase(s.charAt(0))).append(s.substring(1)).toString();
+    }
+
     /**
      * include exclude过滤
      *
@@ -149,7 +163,9 @@ public class PackageUtil {
     private static void includeOrExcludeClass(String packageName, String className, List<String> included,
                                               List<String> excluded, List<String> classes) {
         if (isIncluded(className, included, excluded)) {
-            classes.add(packageName + '.' + className);
+//            classes.add(packageName + '.' + className);
+            className = toLowerCaseFirstOne(className);
+            classes.add(className);
         } else {
         }
     }

@@ -36,6 +36,9 @@ public class OauthServer {
     @Autowired
     private Oauth2ServerProperties serverProperties;
 
+    @Autowired
+    private ActionDispatcher dispatcher;
+
     private EventLoopGroup bossGroup;
 
     private EventLoopGroup workerGroup;
@@ -55,8 +58,6 @@ public class OauthServer {
 //        KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
 //        kmf.init(keyStore, serverProperties.getSslPassword().toCharArray());
 //        sslContext = SslContextBuilder.forServer(kmf).build();
-        ActionDispatcher dispatcher = new ActionDispatcher();
-        dispatcher.init(serverProperties.getConfigFilePath());
         oauthServer();
         LOGGER.info("OauthServer is up and running. Open port: {}",  serverProperties.getPort());
     }
@@ -95,7 +96,7 @@ public class OauthServer {
 
                         channelPipeline.addLast("codec",new HttpServerCodec());
                         channelPipeline.addLast("aggregator",new HttpObjectAggregator(1024*1024));//在处理 POST消息体时需要加上
-                        channelPipeline.addLast("dispatcher",new ActionDispatcher());//请求分发组件
+                        channelPipeline.addLast("dispatcher",dispatcher);//请求分发组件
                     }
                 })
                 .option(ChannelOption.SO_BACKLOG, 1024)

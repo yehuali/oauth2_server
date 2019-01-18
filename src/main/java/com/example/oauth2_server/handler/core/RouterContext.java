@@ -8,6 +8,11 @@ import com.example.oauth2_server.handler.core.invocation.ActionInvocation;
 import com.example.oauth2_server.handler.core.invocation.ActionProxy;
 import com.example.oauth2_server.handler.core.util.PackageUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -20,13 +25,27 @@ import java.util.regex.Pattern;
  * 路由上下文
  */
 @Slf4j
-public class RouterContext {
+@Component
+public class RouterContext implements ApplicationContextAware {
+    @Autowired
+    private ActionProxy proxy;
+    @Autowired
+    private ActionInvocation invocation;
+
+    /**
+     * 上下文对象实例
+     */
+    private ApplicationContext applicationContext;
+
     public Map<String, ActionWrapper> actions = new HashMap<String, ActionWrapper>();
 
-    public RouterContext(String configFilePath) throws Exception{
+
+    public void  loadRouterContext(String configFilePath) throws Exception{
         RouterConfig config = RouterConfig.parse(configFilePath);
         initActionMap(config, actions, ".action");
     }
+
+
 
     private void initActionMap(RouterConfig config, Map<String, ActionWrapper> actionMap, String suffix){
         List<String> packages = config.getActionPacages();
@@ -34,11 +53,18 @@ public class RouterContext {
             String[] classNames = PackageUtil.findClassesInPackage(packagee + ".*"); // 目录下通配
             for(String className : classNames){
                 try {
-                    Class<?> actionClass = Class.forName(className);
-                    if(!BaseAction.class.isAssignableFrom(actionClass)){
+
+//                    Class<?> actionClass = Class.forName(className);
+//                    if(!BaseAction.class.isAssignableFrom(actionClass)){
+//                        continue;
+//                    }
+//                    BaseAction baseAction = (BaseAction) actionClass.newInstance();
+                    Object object = applicationContext.getBean(className);
+                    if(!(object instanceof  BaseAction)){
                         continue;
                     }
-                    BaseAction baseAction = (BaseAction) actionClass.newInstance();
+                    BaseAction baseAction =(BaseAction)applicationContext.getBean(className);
+                    Class<?> actionClass = object.getClass();
                     for(Method method : actionClass.getDeclaredMethods()){
                         if(method.getModifiers() == Modifier.PUBLIC){
                             String actionPath = findNamespace(actionClass, method, config) + method.getName() + suffix;
@@ -50,7 +76,7 @@ public class RouterContext {
                         }
                     }
                 }catch(Exception e){
-                    log.error("该类{} 没有扫描到",className);
+                    log.error("该类{} 没有扫描到",className,e);
                 }
             }
         }
@@ -89,14 +115,16 @@ public class RouterContext {
     }
 
     public ActionProxy getActionProxy(ActionWrapper actionWrapper) throws Exception{
-        ActionProxy proxy = new ActionProxy();
-        ActionInvocation invocation = new ActionInvocation();
         invocation.init(proxy);
-
         proxy.setActionObject(actionWrapper.actionObject);
         proxy.setMethod(actionWrapper.method);
         proxy.setMethodName(actionWrapper.method.getName());
         proxy.setInvocation(invocation);
         return proxy;
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext =applicationContext;
     }
 }

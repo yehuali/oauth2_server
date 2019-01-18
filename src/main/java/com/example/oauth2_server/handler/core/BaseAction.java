@@ -17,6 +17,10 @@ import com.example.oauth2_server.handler.core.util.ValidateUtil;
 import io.netty.handler.codec.http.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.CharEncoding;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.ContextLoader;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
@@ -29,6 +33,7 @@ import java.util.*;
  * Action基础类，所有Action必须继承自此类。BaseAction封装了参数填充、转发、方法调用等功能，并向子类提供render等渲染方法。
  */
 @Slf4j
+@Component
 public class BaseAction {
     public Return processRequest(Method method, String methodName) throws Exception {
         if (method == null) {
@@ -83,7 +88,6 @@ public class BaseAction {
         try {
             //调用，并得到调用结果
             result = (Return)method.invoke(this, paramTarget);
-
         } catch(InvocationTargetException e){
             throw getInvokeException(method, paramTarget, e.getCause());
         } catch(IllegalArgumentException e){

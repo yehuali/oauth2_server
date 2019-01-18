@@ -1,5 +1,6 @@
 package com.example.oauth2_server.handler;
 
+import com.example.oauth2_server.config.Oauth2ServerProperties;
 import com.example.oauth2_server.handler.core.Return;
 import com.example.oauth2_server.handler.core.RouterContext;
 import com.example.oauth2_server.handler.core.config.ActionWrapper;
@@ -10,30 +11,38 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.util.ReferenceCountUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
 
 /**
  *  Action 分发器，收到 request 后不做实际业务处理，而是组装 action 并交给处理。
  */
+@Component
+@ChannelHandler.Sharable
 public class ActionDispatcher extends ChannelInboundHandlerAdapter {
 
     private static final String CONNECTION_KEEP_ALIVE = "keep-alive";
     private static final String CONNECTION_CLOSE = "close";
     private static final String ACTION_SUFFIX = ".action";
 
-    protected static RouterContext routerContext;
     private HttpRequest request;
     private FullHttpResponse response;
     private Channel channel;
+    @Autowired
+    private Oauth2ServerProperties serverProperties;
+
+    @Autowired
+    private RouterContext routerContext;
 
     public ActionDispatcher(){
     }
 
-    public void init(String configFilePath) throws Exception{
-        if(configFilePath == null){
-            configFilePath = "router.xml";
-        }
-        routerContext = new RouterContext(configFilePath);
+    @PostConstruct
+    public void init() throws Exception{
+       routerContext.loadRouterContext(serverProperties.getConfigFilePath());
     }
 
     @Override

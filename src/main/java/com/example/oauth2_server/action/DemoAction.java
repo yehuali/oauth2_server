@@ -6,10 +6,12 @@ import com.example.oauth2_server.handler.core.annotation.Namespace;
 import com.example.oauth2_server.handler.core.annotation.Read;
 import com.example.oauth2_server.handler.core.ret.Render;
 import com.example.oauth2_server.handler.core.ret.RenderType;
+import org.springframework.stereotype.Component;
 
 /**
  * 基本类型参数 测试 demo
  */
+@Component
 public class DemoAction extends BaseAction {
 
 	//测试基本参数类型

@@ -2,12 +2,14 @@ package com.example.oauth2_server.handler.core.invocation;
 
 import com.example.oauth2_server.handler.core.BaseAction;
 import com.example.oauth2_server.handler.core.Return;
+import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
 
 /**
  * 封装了action拦截器和调用的过程
  */
+@Component
 public class ActionInvocation {
     private ActionProxy proxy;
 
