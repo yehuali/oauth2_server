@@ -2,6 +2,7 @@ package com.example.oauth2_server.server;
 
 import com.example.oauth2_server.config.Oauth2ServerProperties;
 import com.example.oauth2_server.handler.ActionDispatcher;
+import com.example.oauth2_server.handler.mvc.HttpServerInitializer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -19,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.DispatcherServlet;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -36,8 +38,8 @@ public class OauthServer {
     @Autowired
     private Oauth2ServerProperties serverProperties;
 
-    @Autowired
-    private ActionDispatcher dispatcher;
+//    @Autowired
+//    private ActionDispatcher dispatcher;
 
     private EventLoopGroup bossGroup;
 
@@ -46,6 +48,10 @@ public class OauthServer {
 //    private SslContext sslContext;
 
     private Channel channel;
+
+    @Autowired
+    private DispatcherServlet dispatcherServlet;
+
 
     @PostConstruct
     public void start() throws Exception {
@@ -81,24 +87,25 @@ public class OauthServer {
                 .channel(NioServerSocketChannel.class)
                 // handler在初始化时就会执行
                 .handler(new LoggingHandler(LogLevel.INFO))
+                .childHandler(new HttpServerInitializer(dispatcherServlet))
                 // childHandler会在客户端成功connect后才执行
-                .childHandler(new ChannelInitializer<SocketChannel>() {
-                    @Override
-                    protected void initChannel(SocketChannel socketChannel) throws Exception {
-                        ChannelPipeline channelPipeline = socketChannel.pipeline();
-                        // Netty提供的心跳检测
-                        channelPipeline.addFirst("idle", new IdleStateHandler(0, 0, serverProperties.getKeepAlive()));
-                        // Netty提供的SSL处理
-//                        SSLEngine sslEngine = sslContext.newEngine(socketChannel.alloc());
-//                        sslEngine.setUseClientMode(false);        // 服务端模式
-//                        sslEngine.setNeedClientAuth(false);        // 不需要验证客户端
-//                        channelPipeline.addLast("ssl", new SslHandler(sslEngine));
-
-                        channelPipeline.addLast("codec",new HttpServerCodec());
-                        channelPipeline.addLast("aggregator",new HttpObjectAggregator(1024*1024));//在处理 POST消息体时需要加上
-                        channelPipeline.addLast("dispatcher",dispatcher);//请求分发组件
-                    }
-                })
+//                .childHandler(new ChannelInitializer<SocketChannel>() {
+//                    @Override
+//                    protected void initChannel(SocketChannel socketChannel) throws Exception {
+//                        ChannelPipeline channelPipeline = socketChannel.pipeline();
+//                        // Netty提供的心跳检测
+//                        channelPipeline.addFirst("idle", new IdleStateHandler(0, 0, serverProperties.getKeepAlive()));
+//                        // Netty提供的SSL处理
+////                        SSLEngine sslEngine = sslContext.newEngine(socketChannel.alloc());
+////                        sslEngine.setUseClientMode(false);        // 服务端模式
+////                        sslEngine.setNeedClientAuth(false);        // 不需要验证客户端
+////                        channelPipeline.addLast("ssl", new SslHandler(sslEngine));
+//
+//                        channelPipeline.addLast("codec",new HttpServerCodec());
+//                        channelPipeline.addLast("aggregator",new HttpObjectAggregator(1024*1024));//在处理 POST消息体时需要加上
+//                        channelPipeline.addLast("dispatcher",dispatcher);//请求分发组件
+//                    }
+//                })
                 .option(ChannelOption.SO_BACKLOG, 1024)
                 .childOption(ChannelOption.SO_KEEPALIVE, true)
                 .childOption(ChannelOption.TCP_NODELAY, true);

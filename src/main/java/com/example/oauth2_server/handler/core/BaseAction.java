@@ -17,10 +17,7 @@ import com.example.oauth2_server.handler.core.util.ValidateUtil;
 import io.netty.handler.codec.http.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.CharEncoding;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.ContextLoader;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;

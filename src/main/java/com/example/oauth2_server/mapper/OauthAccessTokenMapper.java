@@ -9,4 +9,6 @@ public interface OauthAccessTokenMapper {
 
     @Select("SELECT * FROM oauth_access_tokens")
     List<OauthAccessTokens> getAll();
+
+
 }

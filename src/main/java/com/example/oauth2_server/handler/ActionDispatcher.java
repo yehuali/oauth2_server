@@ -20,8 +20,8 @@ import javax.annotation.PostConstruct;
 /**
  *  Action 分发器，收到 request 后不做实际业务处理，而是组装 action 并交给处理。
  */
-@Component
-@ChannelHandler.Sharable
+//@Component
+//@ChannelHandler.Sharable
 public class ActionDispatcher extends ChannelInboundHandlerAdapter {
 
     private static final String CONNECTION_KEEP_ALIVE = "keep-alive";
